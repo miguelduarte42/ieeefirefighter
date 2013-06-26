@@ -61,21 +61,6 @@ public class SideSensors {
 
 	public void mainLoop() {
 		
-		turnTachos(90);
-		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		turnTachos(-180);
-		
-		while(true);
-		
-		/*
-		
 		startTime = System.currentTimeMillis();
 //		returning = true;
 		while(!finishedMission) {
@@ -110,8 +95,6 @@ public class SideSensors {
 			}
 		}
 		updateWheelSpeeds(0, 0);
-		
-		*/
 	}
 
 	private void ignoreRoom() {
@@ -169,6 +152,15 @@ public class SideSensors {
 					lSpeed = 720 - (temp[0] * 8);
 				}
 				updateWheelSpeeds(lSpeed, rSpeed);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				updateWheelSpeeds(0, 0);
+				int a = 1;
+				while(a == 1);
 				return temp;
 			}
 		}
