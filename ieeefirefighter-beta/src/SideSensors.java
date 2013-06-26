@@ -30,6 +30,7 @@ public class SideSensors {
 	int averages[] = new int[5];
 	int currentIndex = 0;
 	int numberOfRooms = 0;
+	double tacho_scale = 5.3;
 
 	long ignoreWhiteTime = 5*1000;
 	long startTime;
@@ -405,6 +406,20 @@ public class SideSensors {
 			mLeft.backward();
 		if (rSpeed < 0)
 			mRight.backward();
+	}
+	
+	private void turnTachos(int turn_degree){
+		int leftTacho = mLeft.getTachoCount();
+		int rightTacho = mRight.getTachoCount();
+		if(turn_degree < 0){
+			while(mRight.getTachoCount() < rightTacho + (tacho_scale * turn_degree)){
+				updateWheelSpeeds(-720, 720);				
+			}
+		}else{
+			while(mLeft.getTachoCount() < leftTacho + (tacho_scale * turn_degree)){
+				updateWheelSpeeds(720, -720);				
+			}
+		}
 	}
 
 	public static void main(String[] args) {
