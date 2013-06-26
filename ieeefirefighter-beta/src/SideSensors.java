@@ -61,14 +61,16 @@ public class SideSensors {
 
 	public void mainLoop() {
 		
-		int tachoLeft = mLeft.getTachoCount();
-		int tachoRight = mLeft.getTachoCount();
+		turnTachos(90);
 		
-		updateWheelSpeeds(720, -720);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		while(mLeft.getTachoCount() - tachoLeft < 100);
-		
-		updateWheelSpeeds(0, 0);
+		turnTachos(-180);
 		
 		while(true);
 		
@@ -412,14 +414,13 @@ public class SideSensors {
 		int leftTacho = mLeft.getTachoCount();
 		int rightTacho = mRight.getTachoCount();
 		if(turn_degree < 0){
-			while(mRight.getTachoCount() < rightTacho + (tacho_scale * turn_degree)){
-				updateWheelSpeeds(-720, 720);				
-			}
+			updateWheelSpeeds(-720, 720);
+			while(mRight.getTachoCount() < rightTacho + (tacho_scale * -turn_degree));
 		}else{
-			while(mLeft.getTachoCount() < leftTacho + (tacho_scale * turn_degree)){
-				updateWheelSpeeds(720, -720);				
-			}
+			updateWheelSpeeds(720, -720);	
+			while(mLeft.getTachoCount() < leftTacho + (tacho_scale * turn_degree));
 		}
+		updateWheelSpeeds(0, 0);
 	}
 
 	public static void main(String[] args) {
