@@ -56,12 +56,12 @@ public class SideSensors {
 		}
 
 		getTemperatures(0);
-		System.out.println("Got temperatures!");
+		System.out.println("Start!");
 		Sound.beep();
 	}
 
 	public void mainLoop() {
-
+		
 		startTime = System.currentTimeMillis();
 		//		returning = true;
 		while(!finishedMission) {
@@ -199,15 +199,23 @@ public class SideSensors {
 			while(angle == null);
 			turnTachos(angle);
 			
-			while(maxTemperature() < 120){ 
-				if(candleAccurateIndex() < 4){
-					updateWheelSpeeds(15 * candleAccurateIndex(), 75);
+			while(maxTemperature() < 150){ 
+				if(candleAccurateIndex() < 3){
+					updateWheelSpeeds(15, 75);
 				}else{
-					updateWheelSpeeds(75, 15 * candleAccurateIndex());
+					updateWheelSpeeds(75, 15);
 				}
 			}
+			System.out.println(maxTemperature());
 			updateWheelSpeeds(0, 0);
 			Sound.beepSequence();
+			turnFan(true);
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			turnFan(false);
 			while(true);
 			
 		}else {
@@ -360,7 +368,7 @@ public class SideSensors {
 	}
 	
 	private Integer candleAngle(){
-		return candleAngle(-90, 90);
+		return candleAngle(-120, 120);
 	}
 
 	private Integer candleAngle(int startAngle, int finishAngle) {
@@ -449,6 +457,10 @@ public class SideSensors {
 
 	private void turnLed(boolean on) {
 		bh.turnLed(on);
+	}
+	
+	private void flashLed() {
+		bh.flashLed();
 	}
 
 	private void updateWheelSpeeds(int lSpeed, int rSpeed) {
