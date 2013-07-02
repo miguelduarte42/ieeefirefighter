@@ -166,31 +166,27 @@ public class SideSensors {
 	public void searchRoom(){
 		int lSpeed = 720;
 		int rSpeed = 720;
-		
+
 		Integer angle = candleAngle();
-		
+
 		if(angle != null) {
 			Sound.beepSequence();
 			if(angle > 0){
 				rSpeed = 720 - (angle * 8);
 			}else if(angle < 0){
-				lSpeed = 720 - (angle * 8);
+				lSpeed = 720 - (-angle * 8);
 			}
-			
+
 			System.out.println("ANGLE: "+angle);
-			
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-			
+
 			updateWheelSpeeds(lSpeed, rSpeed);
-			
+
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(650);
 			} catch (InterruptedException e) {e.printStackTrace();}
-			
+
 			updateWheelSpeeds(0, 0);
-			
+
 			int range = 30;
 			do{
 				angle = candleAngle(-range,range);
@@ -199,25 +195,35 @@ public class SideSensors {
 			while(angle == null);
 			turnTachos(angle);
 			
-			while(maxTemperature() < 150){ 
-				if(candleAccurateIndex() < 3){
-					updateWheelSpeeds(15, 75);
+			updateWheelSpeeds(540, 540);
+			
+			while(maxTemperature() < 140){ 
+				System.out.println(maxTemperature());
+				int index = candleAccurateIndex();
+				System.out.println(index);
+				if(index <= 3){
+					updateWheelSpeeds(150, 0);
 				}else{
-					updateWheelSpeeds(75, 15);
+					updateWheelSpeeds(0, 150);
 				}
 			}
-			System.out.println(maxTemperature());
-			updateWheelSpeeds(0, 0);
-			Sound.beepSequence();
-			turnFan(true);
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			turnFan(false);
-			while(true);
 			
+			System.out.println(maxTemperature());
+			
+			updateWheelSpeeds(0, 0);
+			
+			radar.rotateTo(0);
+	
+			Sound.beepSequence();
+			
+			turnFan(true);
+			
+			while(maxTemperature() >= 50);
+			
+			turnFan(false);
+
+			while(true);
+
 		}else {
 			ignoredSearchedRoom();
 		}
@@ -274,7 +280,6 @@ public class SideSensors {
 					hugLeft();
 				Sound.beep();
 			}
-
 		}
 	}
 
@@ -417,14 +422,16 @@ public class SideSensors {
 		int max = 0;
 		int[] temps = getTemperatures(0);
 		int[] temps2 = getTemperatures(1);
-		
+
 		for(int i = 0; i < temps.length - 1; i++)
 			if(temps[i] > max) {
 				place = i;
+				max = temps[i];
 			}
 		for(int i = 0; i < temps2.length - 1; i++)
 			if(temps2[i] > max) {
 				place = i;
+				max = temps2[i];
 			}
 		return place;
 	}
