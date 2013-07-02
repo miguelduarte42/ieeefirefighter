@@ -186,4 +186,14 @@ public class BluetoothHandler {
 			e.printStackTrace();
 		}
 	}
+
+	public void flashLed() {
+		try {
+			outputStream.write((int)'f');
+			outputStream.flush();
+		} catch(Exception e) {
+			Sound.beep();
+			System.out.println(e.getMessage());
+		}
+	}
 }
