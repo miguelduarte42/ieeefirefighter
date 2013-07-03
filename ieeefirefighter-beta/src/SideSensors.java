@@ -15,7 +15,6 @@ public class SideSensors {
 	 * -Bumper 
 	 *
 	 */
-
 	NXTRegulatedMotor mRight = new NXTRegulatedMotor(MotorPort.A);
 	NXTRegulatedMotor mLeft = new NXTRegulatedMotor(MotorPort.B);
 	NXTRegulatedMotor radar = new NXTRegulatedMotor(MotorPort.C);
@@ -38,7 +37,7 @@ public class SideSensors {
 	private boolean seenWhite = false;
 	private boolean stopWalk = false;
 	private long detectWhiteTime = 0;
-	private long whiteStripeThreshold = 500;
+	private long whiteStripeThreshold = 700;
 	private boolean finishedMission = false;
 	private boolean returning = false;
 
@@ -111,7 +110,7 @@ public class SideSensors {
 		
 		updateWheelSpeeds(lSpeed, rSpeed);
 		//change this value for small corridors!!
-		sleep(1500);
+		sleep(1000);
 
 		turnTachos(90);
 	}
@@ -214,14 +213,6 @@ public class SideSensors {
 			ignoredSearchedRoom();
 		}
 	}
-	
-	private void sleep(long time) {
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 
 	private void ignoredSearchedRoom() {
 		int lSpeed = -720;
@@ -229,7 +220,7 @@ public class SideSensors {
 
 		updateWheelSpeeds(lSpeed, rSpeed);
 		//change this value for small corridors!!
-		sleep(1500);
+		sleep(1000);
 
 		if(currentRoom == 1) {
 			turnTachos(90);
@@ -241,7 +232,7 @@ public class SideSensors {
 
 			long st = System.currentTimeMillis();
 
-			while(System.currentTimeMillis() - st < 2500)
+			while(/*System.currentTimeMillis() - st < 2500 && */sRight.getDistance() > 30)
 				hugLeft();
 			Sound.beep();
 		} else  if(currentRoom == 4) {
@@ -276,14 +267,10 @@ public class SideSensors {
 			//turn at full speed to the left.
 			lSpeed = -720;			
 		}else if (rightDistance > 15 && rightDistance < 20) {
-
 			rSpeed /= 5-(20 - rightDistance);
-
 		} else if(rightDistance >= 20) {
 			//if there is no wall to the right, find one by sharply turning right
-			rSpeed = 300;
-
-
+			rSpeed = 250;
 		} else if (rightDistance < 15) {
 			//if we are too close to the right wall, turn slightly to the left
 			lSpeed /= 15 - rightDistance;
@@ -306,12 +293,10 @@ public class SideSensors {
 			//turn at full speed to the left.
 			rSpeed = -720;			
 		}else if (leftDistance > 15 && leftDistance < 20) {
-
 			rSpeed /= 5-(20 - leftDistance);
-
 		} else if(leftDistance >= 20) {
 			//if there is no wall to the right, find one by sharply turning right
-			lSpeed = 300;
+			lSpeed = 250;
 
 		} else if (leftDistance < 15) {
 			//if we are too close to the right wall, turn slightly to the left
@@ -428,6 +413,14 @@ public class SideSensors {
 			}
 		}
 		return max;
+	}
+	
+	private void sleep(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private Integer candleAngle(){
