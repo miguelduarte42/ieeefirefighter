@@ -37,7 +37,7 @@ public class SideSensors {
 	private boolean seenWhite = false;
 	private boolean stopWalk = false;
 	private long detectWhiteTime = 0;
-	private long whiteStripeThreshold = 700;
+	private long whiteStripeThreshold = 400;
 	private boolean finishedMission = false;
 	private boolean returning = false;
 
@@ -94,25 +94,15 @@ public class SideSensors {
 				}else{
 					Sound.beep();
 					stopWalk=false;
-					currentRoom--;
-					ignoreRoom();
+					if(numberOfRooms <= 2)
+						currentRoom--;
+					ignoredSearchedRoom();
 					Sound.beep();
 					stopWalk=false;
 				}
 			}
 		}
 		updateWheelSpeeds(0, 0);
-	}
-
-	private void ignoreRoom() {
-		int lSpeed = -720;
-		int rSpeed = -720;
-		
-		updateWheelSpeeds(lSpeed, rSpeed);
-		//change this value for small corridors!!
-		sleep(1000);
-
-		turnTachos(90);
 	}
 
 	private boolean didntCrossLine() {
@@ -129,15 +119,23 @@ public class SideSensors {
 
 			long whiteTime = System.currentTimeMillis() - detectWhiteTime;
 
-			if(whiteTime > whiteStripeThreshold) {
+			if(whiteTime > whiteStripeThreshold && returning) {
 				finishedMission = true;
 			} else if(!white()){
-				seenWhite=false;
-				stopWalk = true;
-				updateWheelSpeeds(0, 0);
-				return false;
+				System.out.println(whiteTime);
+				if(!returning && whiteTime > whiteStripeThreshold) {
+					seenWhite = false;
+					stopWalk = false;
+					return true;
+				}else {
+					seenWhite=false;
+					stopWalk = true;
+					updateWheelSpeeds(0, 0);
+					return false;
+				}
 			}
 		}
+		
 		return !stopWalk;
 	}
 
@@ -170,44 +168,50 @@ public class SideSensors {
 			
 			if(angle == null)
 				angle = candleAngle();
-
-			turnLed(true);
-			turnTachos(angle);
 			
-			while(sFront.getDistance() > 10){
-				int index = candleAccurateIndex();
-				if(index <= 3){
-					updateWheelSpeeds(300, 60);
-				}else{
-					updateWheelSpeeds(60, 300);
+			if(angle == null)
+				//crazy situation where the candle is detected by mistake
+				ignoredSearchedRoom();
+			else{
+				
+				turnLed(true);
+				turnTachos(angle);
+				
+				while(sFront.getDistance() > 15){
+					int index = candleAccurateIndex();
+					if(index <= 3){
+						updateWheelSpeeds(2*300, 3*60);
+					}else{
+						updateWheelSpeeds(3*60, 2*300);
+					}
 				}
-			}
-			updateWheelSpeeds(0, 0);
-			System.out.println(maxTemperature());
-			
-			radar.rotateTo(0);
+				updateWheelSpeeds(0, 0);
+				System.out.println(maxTemperature());
+				
+				radar.rotateTo(0);
+		
+				Sound.beepSequence();
+				
+				turnFan(true);
 	
-			Sound.beepSequence();
-			
-			turnFan(true);
-
-			while(maxTemperature() >= 50);
-			
-			radar.rotateTo(0);
-			updateWheelSpeeds(0, 0);
-			
-			turnFan(false);
-			turnLed(false);
-			
-			returning = true;
-
-			updateWheelSpeeds(-300, -300);
-			sleep(650);
-			turnTachos(-90);
-			
-			while(didntCrossLine())
-				hugRight();
-			Sound.beepSequence();
+				while(maxTemperature() >= 40)
+					sleep(1000);
+				sleep(1000);
+				radar.rotateTo(0);
+				updateWheelSpeeds(0, 0);
+				
+				turnFan(false);
+				turnLed(false);
+				
+				returning = true;
+	
+				updateWheelSpeeds(-300, -300);
+				sleep(650);
+				turnTachos(-90);
+				
+				while(didntCrossLine())
+					hugRight();
+			}
 			
 		}else {
 			ignoredSearchedRoom();
@@ -225,25 +229,31 @@ public class SideSensors {
 		if(currentRoom == 1) {
 			turnTachos(90);
 		} else if(currentRoom == 2) {
-			turnTachos(180);
+			turnTachos(-90);
 		} else if(currentRoom == 3) {
 
-			turnTachos(-90);
+			turnTachos(-50);
 
 			long st = System.currentTimeMillis();
 
 			while(/*System.currentTimeMillis() - st < 2500 && */sRight.getDistance() > 30)
-				hugLeft();
+				updateWheelSpeeds(720, 720);
+				//hugLeft();
 			Sound.beep();
-		} else  if(currentRoom == 4) {
+		} else  if(currentRoom >= 4) {
+			updateWheelSpeeds(-300, -300);
+			sleep(750);
+			updateWheelSpeeds(0, 0);
 			turnTachos(-90);
 			long st = System.currentTimeMillis();
-
-			while(System.currentTimeMillis() - st < 2500)
+			while(/*System.currentTimeMillis() - st < 2500 && */sRight.getDistance() > 30)
 				hugLeft();
 			Sound.beep();
+			long time = System.currentTimeMillis();
+			while(System.currentTimeMillis() - time < 750)
+				hugLeft();
 		} else {
-			turnTachos(90);
+			turnTachos(-90);
 		}
 	}
 
@@ -317,9 +327,9 @@ public class SideSensors {
 		int max = 0;
 		int angle = 0;
 		int index = 0;
-		
+		System.out.println("before");
 		int ambient = (getTemperatures(0)[8] + getTemperatures(1)[8]) / 2;
-		
+		System.out.println("after");
 		boolean foundCandle = false;
 		
 		for(int i = startAngle ; i > finishAngle && !foundCandle ; i-=increment) {
