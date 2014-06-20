@@ -10,7 +10,7 @@ public class SideSensors {
 
 	/**
 	 * TODO
-	 * *
+	 * 
 	 * -Voltar ao inicio de maneira diferente dependendo da sala da vela
 	 * -Bumper 
 	 *
